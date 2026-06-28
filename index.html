@@ -3,129 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suivi Température Transformateur</title>
+  <title>Suivi Température Transformateurs</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --green: #27AE60; --green-bg: #D4EDDA; --green-text: #1A5C2E;
-      --blue: #2980B9;  --blue-bg: #D6EAF8;  --blue-text: #1A4A6E;
-      --orange: #E67E22; --orange-bg: #FDEBD0; --orange-text: #7D4300;
-      --red: #C0392B;   --red-bg: #FDECEA;   --red-text: #7B1A1A;
-      --border: #E2E8F0; --surface: #F8FAFC; --surface2: #fff;
-      --text: #1E293B; --text-muted: #94A3B8; --text-secondary: #64748B;
-      --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.07);
+      --green:#27AE60;--green-bg:#D4EDDA;--green-text:#1A5C2E;
+      --blue:#2980B9;--blue-bg:#D6EAF8;--blue-text:#1A4A6E;
+      --orange:#E67E22;--orange-bg:#FDEBD0;--orange-text:#7D4300;
+      --red:#C0392B;--red-bg:#FDECEA;--red-text:#7B1A1A;
+      --purple:#7C3AED;--purple-bg:#EDE9FE;--purple-text:#4C1D95;
+      --border:#E2E8F0;--surface:#F8FAFC;--surface2:#fff;
+      --text:#1E293B;--text-muted:#94A3B8;--text-secondary:#64748B;
+      --radius:8px;--shadow:0 1px 3px rgba(0,0,0,0.07);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
-    .app { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
-    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
-    .header-icon { width: 42px; height: 42px; border-radius: var(--radius); background: var(--red-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .header-icon i { font-size: 22px; color: var(--red-text); }
-    .header h1 { font-size: 18px; font-weight: 600; }
-    .header p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-    .tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; gap: 0; }
-    .tab { padding: 9px 16px; font-size: 13px; font-weight: 500; color: var(--text-secondary); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1.5px; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-    .tab:hover:not(.active) { color: var(--text); }
-    .section { display: none; } .section.active { display: block; }
-    .alert-banner { border-radius: var(--radius); background: var(--red-bg); border: 1px solid #FBBCBC; padding: 10px 14px; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--red-text); font-weight: 500; }
-    .card { background: var(--surface2); border-radius: 12px; border: 1px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
-    .card h3 { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
-    .leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
-    .leg-dot { width: 10px; height: 10px; border-radius: 99px; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 1rem; }
-    input[type=time], input[type=date], input[type=text], input[type=number] {
-      font-size: 13px; height: 34px; padding: 0 10px; border-radius: var(--radius);
-      border: 1px solid var(--border); background: var(--surface2); color: var(--text);
-      font-family: inherit;
-    }
-    input:focus { outline: none; border-color: var(--blue); }
-    button { font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; height: 34px; padding: 0 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); color: var(--text-secondary); transition: all 0.15s; }
-    button:hover { background: var(--surface); color: var(--text); }
-    .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .btn-primary:hover { background: #2471A3; }
-    .btn-green { background: var(--green); color: #fff; border-color: var(--green); }
-    .btn-green:hover { background: #229954; }
-    .sep { width: 1px; height: 24px; background: var(--border); }
-    .tbl-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); margin-bottom: 1rem; box-shadow: var(--shadow); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead th { background: var(--surface); padding: 9px 12px; font-weight: 600; font-size: 11px; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; }
-    thead th:first-child { text-align: left; min-width: 110px; }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--surface); }
-    tbody tr.row-critical { background: #FFF5F5; }
-    tbody td { padding: 8px 12px; color: var(--text); vertical-align: middle; }
-    tbody td:first-child { font-weight: 600; white-space: nowrap; }
-    .tcell { text-align: center; }
-    .tcell input[type=number] { width: 60px; text-align: center; -moz-appearance: textfield; }
-    .tcell input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-top: 2px; }
-    .b-ok   { background: var(--green-bg);  color: var(--green-text); }
-    .b-mid  { background: var(--blue-bg);   color: var(--blue-text); }
-    .b-warn { background: var(--orange-bg); color: var(--orange-text); }
-    .b-hot  { background: var(--red-bg);    color: var(--red-text); }
-    .trend { font-size: 13px; font-weight: 600; }
-    .trend-up { color: var(--red-text); } .trend-down { color: var(--green-text); } .trend-flat { color: var(--text-muted); }
-    .del-btn { background: none; border: none; color: var(--text-muted); padding: 4px 6px; height: auto; }
-    .del-btn:hover { color: var(--red-text); background: var(--red-bg); }
-    .del-hour { background: none; border: none; color: var(--text-muted); padding: 0 3px; font-size: 12px; height: auto; }
-    .del-hour:hover { color: var(--red-text); }
-    tfoot td { padding: 7px 12px; font-size: 11px; font-weight: 600; text-align: center; background: var(--surface); border-top: 1px solid var(--border); color: var(--text-secondary); }
-    tfoot td:first-child { text-align: left; }
-    .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 13px; }
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 1rem; }
-    .kpi { background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border); padding: 10px 14px; box-shadow: var(--shadow); }
-    .kpi .kl { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-    .kpi .kv { font-size: 20px; font-weight: 700; } .kpi .ku { font-size: 11px; color: var(--text-secondary); }
-    .day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 4px; }
-    .day-cell { border-radius: 6px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; text-align: center; line-height: 1.3; cursor: default; }
-    .dc-ok { background: var(--green-bg); color: var(--green-text); }
-    .dc-mid { background: var(--blue-bg); color: var(--blue-text); }
-    .dc-warn { background: var(--orange-bg); color: var(--orange-text); }
-    .dc-hot { background: var(--red-bg); color: var(--red-text); }
-    .dc-empty { background: var(--surface); color: var(--text-muted); }
-    .fiche-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media(max-width:500px) { .fiche-grid { grid-template-columns: 1fr; } }
-    .fiche-field { display: flex; flex-direction: column; gap: 4px; }
-    .fiche-field label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-    .fiche-field input { width: 100%; }
-    .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media(max-width:500px) { .export-grid { grid-template-columns: 1fr; } }
-    .export-card { border-radius: var(--radius); border: 1px solid var(--border); padding: 1rem; display: flex; flex-direction: column; gap: 8px; background: var(--surface); }
-    .export-card .ec-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
-    .export-card .ec-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; flex: 1; }
-    .rapport-box { background: var(--surface2); border-radius: 12px; border: 1px solid var(--border); padding: 1.25rem; white-space: pre-wrap; font-size: 13px; line-height: 1.7; color: var(--text); font-family: 'Courier New', monospace; min-height: 200px; box-shadow: var(--shadow); }
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1E293B; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-    .toast.show { opacity: 1; }
-    .chart-wrap { position: relative; width: 100%; height: 200px; }
-    .file-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; height: 34px; padding: 0 14px; border-radius: var(--radius); cursor: pointer; background: var(--green); color: #fff; border: 1px solid var(--green); font-family: inherit; font-weight: 500; }
-    .file-label:hover { background: #229954; }
-    .save-indicator { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
+    .app{max-width:1100px;margin:0 auto;padding:1.25rem 1rem 3rem;}
+
+    /* SÉLECTEUR TRANSFO */
+    .transfo-bar{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:1.25rem;box-shadow:var(--shadow);flex-wrap:wrap;}
+    .transfo-bar label{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap;}
+    .transfo-btns{display:flex;gap:6px;flex:1;flex-wrap:wrap;}
+    .transfo-btn{flex:1;min-width:120px;height:36px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;}
+    .transfo-btn:hover{border-color:var(--blue);color:var(--blue);}
+    .transfo-btn.active-t1{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-text);font-weight:600;}
+    .transfo-btn.active-t2{background:var(--purple-bg);border-color:var(--purple);color:var(--purple-text);font-weight:600;}
+    .transfo-indicator{width:10px;height:10px;border-radius:99px;flex-shrink:0;}
+
+    .header{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;}
+    .header-icon{width:42px;height:42px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .header-icon.t1{background:var(--blue-bg);}
+    .header-icon.t2{background:var(--purple-bg);}
+    .header-icon i{font-size:22px;}
+    .header-icon.t1 i{color:var(--blue-text);}
+    .header-icon.t2 i{color:var(--purple-text);}
+    .header h1{font-size:18px;font-weight:600;}
+    .header p{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+
+    .tabs{display:flex;border-bottom:1.5px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;}
+    .tab{padding:9px 16px;font-size:13px;font-weight:500;color:var(--text-secondary);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1.5px;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+    .tab.active-t1{color:var(--blue);border-bottom-color:var(--blue);}
+    .tab.active-t2{color:var(--purple);border-bottom-color:var(--purple);}
+    .tab:hover:not(.active-t1):not(.active-t2){color:var(--text);}
+    .section{display:none;}.section.active{display:block;}
+
+    .alert-banner{border-radius:var(--radius);background:var(--red-bg);border:1px solid #FBBCBC;padding:10px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--red-text);font-weight:500;}
+    .card{background:var(--surface2);border-radius:12px;border:1px solid var(--border);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+    .card h3{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;}
+    .leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);}
+    .leg-dot{width:10px;height:10px;border-radius:99px;}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:1rem;}
+    input[type=time],input[type=date],input[type=text],input[type=number]{font-size:13px;height:34px;padding:0 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;}
+    input:focus{outline:none;border-color:var(--blue);}
+    button{font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;height:34px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-secondary);transition:all 0.15s;}
+    button:hover{background:var(--surface);color:var(--text);}
+    .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+    .btn-primary:hover{background:#2471A3;}
+    .btn-primary.t2{background:var(--purple);border-color:var(--purple);}
+    .btn-primary.t2:hover{background:#6D28D9;}
+    .btn-green{background:var(--green);color:#fff;border-color:var(--green);}
+    .btn-green:hover{background:#229954;}
+    .sep{width:1px;height:24px;background:var(--border);}
+    .tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:1rem;box-shadow:var(--shadow);}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{background:var(--surface);padding:9px 12px;font-weight:600;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+    thead th:first-child{text-align:left;min-width:110px;}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:var(--surface);}
+    tbody tr.row-critical{background:#FFF5F5;}
+    tbody td{padding:8px 12px;color:var(--text);vertical-align:middle;}
+    tbody td:first-child{font-weight:600;white-space:nowrap;}
+    .tcell{text-align:center;}
+    .tcell input[type=number]{width:60px;text-align:center;-moz-appearance:textfield;}
+    .tcell input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-top:2px;}
+    .b-ok{background:var(--green-bg);color:var(--green-text);}
+    .b-mid{background:var(--blue-bg);color:var(--blue-text);}
+    .b-warn{background:var(--orange-bg);color:var(--orange-text);}
+    .b-hot{background:var(--red-bg);color:var(--red-text);}
+    .trend{font-size:13px;font-weight:600;}
+    .trend-up{color:var(--red-text);}.trend-down{color:var(--green-text);}.trend-flat{color:var(--text-muted);}
+    .del-btn{background:none;border:none;color:var(--text-muted);padding:4px 6px;height:auto;}
+    .del-btn:hover{color:var(--red-text);background:var(--red-bg);}
+    .del-hour{background:none;border:none;color:var(--text-muted);padding:0 3px;font-size:12px;height:auto;}
+    .del-hour:hover{color:var(--red-text);}
+    tfoot td{padding:7px 12px;font-size:11px;font-weight:600;text-align:center;background:var(--surface);border-top:1px solid var(--border);color:var(--text-secondary);}
+    tfoot td:first-child{text-align:left;}
+    .empty{text-align:center;padding:3rem;color:var(--text-muted);font-size:13px;}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1rem;}
+    .kpi{background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);padding:10px 14px;box-shadow:var(--shadow);}
+    .kpi .kl{font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+    .kpi .kv{font-size:20px;font-weight:700;}.kpi .ku{font-size:11px;color:var(--text-secondary);}
+    .day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:4px;}
+    .day-cell{border-radius:6px;height:40px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;text-align:center;line-height:1.3;cursor:default;}
+    .dc-ok{background:var(--green-bg);color:var(--green-text);}
+    .dc-mid{background:var(--blue-bg);color:var(--blue-text);}
+    .dc-warn{background:var(--orange-bg);color:var(--orange-text);}
+    .dc-hot{background:var(--red-bg);color:var(--red-text);}
+    .dc-empty{background:var(--surface);color:var(--text-muted);}
+    .fiche-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media(max-width:500px){.fiche-grid{grid-template-columns:1fr;}}
+    .fiche-field{display:flex;flex-direction:column;gap:4px;}
+    .fiche-field label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+    .fiche-field input{width:100%;}
+    .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media(max-width:500px){.export-grid{grid-template-columns:1fr;}}
+    .export-card{border-radius:var(--radius);border:1px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:8px;background:var(--surface);}
+    .export-card .ec-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;}
+    .export-card .ec-desc{font-size:12px;color:var(--text-muted);line-height:1.5;flex:1;}
+    .rapport-box{background:var(--surface2);border-radius:12px;border:1px solid var(--border);padding:1.25rem;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--text);font-family:'Courier New',monospace;min-height:200px;box-shadow:var(--shadow);}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1E293B;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;}
+    .chart-wrap{position:relative;width:100%;height:200px;}
+    .file-label{display:inline-flex;align-items:center;gap:6px;font-size:13px;height:34px;padding:0 14px;border-radius:var(--radius);cursor:pointer;background:var(--orange);color:#fff;border:1px solid var(--orange);font-family:inherit;font-weight:500;}
+    .file-label:hover{background:#CA6F1E;}
+
+    /* COMPARAISON */
+    .compare-card{background:var(--surface2);border-radius:12px;border:1px solid var(--border);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    @media(max-width:500px){.compare-grid{grid-template-columns:1fr;}}
+    .compare-col h4{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .compare-col h4.t1{color:var(--blue-text);}
+    .compare-col h4.t2{color:var(--purple-text);}
   </style>
 </head>
 <body>
 <div class="app">
   <div class="toast" id="toast"></div>
+
+  <!-- SÉLECTEUR -->
+  <div class="transfo-bar">
+    <label><i class="ti ti-bolt" style="font-size:14px;vertical-align:-2px;margin-right:3px"></i> Transformateur</label>
+    <div class="transfo-btns">
+      <button class="transfo-btn active-t1" id="btn-t1" onclick="switchTransfo(0)">
+        <span class="transfo-indicator" style="background:var(--blue)"></span>
+        <span id="label-t1">Transformateur 1</span>
+      </button>
+      <button class="transfo-btn" id="btn-t2" onclick="switchTransfo(1)">
+        <span class="transfo-indicator" style="background:var(--purple)"></span>
+        <span id="label-t2">Transformateur 2</span>
+      </button>
+    </div>
+    <button onclick="showTab('comparer')" style="white-space:nowrap;font-size:12px;"><i class="ti ti-arrows-diff"></i> Comparer</button>
+  </div>
+
   <div id="alert-global"></div>
 
   <div class="header">
-    <div class="header-icon"><i class="ti ti-bolt"></i></div>
+    <div class="header-icon t1" id="header-icon"><i class="ti ti-bolt"></i></div>
     <div>
-      <h1 id="header-title">Suivi de température — transformateur</h1>
+      <h1 id="header-title">Suivi de température — Transformateur 1</h1>
       <p>Disjonction vers 90–95 °C &nbsp;·&nbsp; <span id="save-status">Données sauvegardées localement</span></p>
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Tableau de bord</button>
+  <div class="tabs" id="main-tabs">
+    <button class="tab active-t1" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Tableau de bord</button>
     <button class="tab" onclick="showTab('saisie')"><i class="ti ti-pencil"></i> Saisie</button>
     <button class="tab" onclick="showTab('fiche')"><i class="ti ti-bolt"></i> Transformateur</button>
     <button class="tab" onclick="showTab('export')"><i class="ti ti-download"></i> Export</button>
     <button class="tab" onclick="showTab('rapport')"><i class="ti ti-file-text"></i> Rapport</button>
+    <button class="tab" onclick="showTab('comparer')" style="margin-left:auto;"><i class="ti ti-arrows-diff"></i> Comparer</button>
   </div>
 
   <!-- DASHBOARD -->
@@ -155,7 +197,7 @@
     </div>
     <div class="toolbar">
       <input type="time" id="inp-hour" value="08:00" />
-      <button class="btn-primary" onclick="addHour()"><i class="ti ti-clock"></i> Ajouter heure</button>
+      <button class="btn-primary" id="btn-add-hour" onclick="addHour()"><i class="ti ti-clock"></i> Ajouter heure</button>
       <div class="sep"></div>
       <input type="date" id="inp-date" />
       <button onclick="addDate()"><i class="ti ti-calendar-plus"></i> Ajouter date</button>
@@ -195,23 +237,23 @@
       <div class="export-grid">
         <div class="export-card">
           <div class="ec-title"><i class="ti ti-file-type-pdf" style="color:var(--red)"></i> Rapport PDF</div>
-          <div class="ec-desc">Rapport complet mis en page avec la fiche transformateur, le résumé de la période, les alertes et le tableau des relevés.</div>
-          <button class="btn-primary" onclick="exportPDF()"><i class="ti ti-download"></i> Télécharger PDF</button>
+          <div class="ec-desc">Rapport complet mis en page avec fiche, résumé, alertes et tableau des relevés.</div>
+          <button class="btn-primary" id="btn-pdf" onclick="exportPDF()"><i class="ti ti-download"></i> Télécharger PDF</button>
         </div>
         <div class="export-card">
           <div class="ec-title"><i class="ti ti-table" style="color:var(--green)"></i> Relevés complets (CSV)</div>
-          <div class="ec-desc">Toutes les températures par date et heure avec le max journalier et le statut. Compatible Excel et LibreOffice.</div>
+          <div class="ec-desc">Toutes les températures par date et heure. Compatible Excel et LibreOffice.</div>
           <button class="btn-green" onclick="exportCSV()"><i class="ti ti-download"></i> Télécharger CSV</button>
         </div>
         <div class="export-card">
           <div class="ec-title"><i class="ti ti-brackets" style="color:var(--blue)"></i> Sauvegarde complète (JSON)</div>
-          <div class="ec-desc">Exporte toutes les données (relevés + fiche) pour les archiver ou les transférer sur un autre appareil.</div>
+          <div class="ec-desc">Exporte toutes les données (relevés + fiche) pour les archiver ou les transférer.</div>
           <button onclick="exportJSON()"><i class="ti ti-download"></i> Télécharger JSON</button>
         </div>
         <div class="export-card">
           <div class="ec-title"><i class="ti ti-upload" style="color:var(--orange)"></i> Importer une sauvegarde</div>
-          <div class="ec-desc">Rechargez un fichier JSON exporté précédemment pour retrouver tous vos relevés sur cet appareil.</div>
-          <label class="file-label" style="background:var(--orange);border-color:var(--orange)">
+          <div class="ec-desc">Rechargez un fichier JSON exporté pour retrouver tous vos relevés sur cet appareil.</div>
+          <label class="file-label">
             <i class="ti ti-upload"></i> Importer JSON
             <input type="file" accept=".json" onchange="importJSON(event)" style="display:none" />
           </label>
@@ -223,184 +265,250 @@
   <!-- RAPPORT -->
   <div class="section" id="tab-rapport">
     <div class="toolbar">
-      <button class="btn-primary" onclick="genRapport()"><i class="ti ti-refresh"></i> Générer le rapport</button>
+      <button class="btn-primary" id="btn-rapport" onclick="genRapport()"><i class="ti ti-refresh"></i> Générer le rapport</button>
       <button onclick="copyRapport()"><i class="ti ti-copy"></i> Copier</button>
     </div>
     <div class="rapport-box" id="rapport-box">Cliquez sur "Générer le rapport" pour créer un résumé de la période.</div>
   </div>
+
+  <!-- COMPARER -->
+  <div class="section" id="tab-comparer">
+    <div class="compare-card">
+      <h3><i class="ti ti-arrows-diff"></i> Comparaison des deux transformateurs</h3>
+      <div class="compare-grid" id="compare-grid"></div>
+    </div>
+    <div class="card" id="compare-chart-section" style="display:none">
+      <h3><i class="ti ti-chart-line"></i> Évolution comparée des températures maximales</h3>
+      <div class="chart-wrap"><canvas id="chart-compare"></canvas></div>
+    </div>
+  </div>
 </div>
 
 <script>
-const OK=65, MID=75, HOT=85;
-const STORAGE_KEY = 'transfo_suivi_v1';
-let hours=[], rows=[], chartInst=null;
-let fiche={nom:'',site:'',puissance:'',tension:'',marque:'',serie:'',maintenance:'',prochaine:'',notes:''};
+const OK=65,MID=75,HOT=85;
+const KEYS=['transfo_suivi_T1_v1','transfo_suivi_T2_v1'];
+const COLORS=['var(--blue)','var(--purple)'];
+const COLORS_HEX=['#2980B9','#7C3AED'];
+const NAMES_DEFAULT=['Transformateur 1','Transformateur 2'];
+
+let currentT=0; // 0 = T1, 1 = T2
+let chartInst=null, chartCompare=null;
+
+// State par transfo
+let state=[
+  {hours:[],rows:[],fiche:{nom:'',site:'',puissance:'',tension:'',marque:'',serie:'',maintenance:'',prochaine:'',notes:''}},
+  {hours:[],rows:[],fiche:{nom:'',site:'',puissance:'',tension:'',marque:'',serie:'',maintenance:'',prochaine:'',notes:''}}
+];
+
+function cur(){return state[currentT];}
+function curHours(){return cur().hours;}
+function curRows(){return cur().rows;}
+function curFiche(){return cur().fiche;}
 
 // ---- STORAGE ----
-function saveAll() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({version:1, fiche, hours, rows}));
-    document.getElementById('save-status').textContent = 'Sauvegardé · ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  } catch(e) {}
+function saveAll(){
+  try{
+    const s=cur();
+    localStorage.setItem(KEYS[currentT],JSON.stringify({version:1,fiche:s.fiche,hours:s.hours,rows:s.rows}));
+    const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('save-status').textContent='Sauvegardé · '+t;
+  }catch(e){}
 }
-function loadAll() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    hours = data.hours || [];
-    rows  = data.rows  || [];
-    fiche = data.fiche || fiche;
-    ['nom','site','puissance','tension','marque','serie','maintenance','prochaine','notes'].forEach(k => {
-      const el = document.getElementById('f-'+k);
-      if (el) el.value = fiche[k] || '';
-    });
-    if (fiche.nom) document.getElementById('header-title').textContent = 'Suivi température — ' + fiche.nom;
-  } catch(e) {}
+function loadTransfo(idx){
+  try{
+    const raw=localStorage.getItem(KEYS[idx]);
+    if(!raw)return;
+    const data=JSON.parse(raw);
+    state[idx].hours=data.hours||[];
+    state[idx].rows=data.rows||[];
+    state[idx].fiche=data.fiche||state[idx].fiche;
+  }catch(e){}
+}
+
+// ---- SWITCH ----
+function switchTransfo(idx){
+  currentT=idx;
+  // Update selector buttons
+  document.getElementById('btn-t1').className='transfo-btn'+(idx===0?' active-t1':'');
+  document.getElementById('btn-t2').className='transfo-btn'+(idx===1?' active-t2':'');
+  // Update header color
+  const icon=document.getElementById('header-icon');
+  icon.className='header-icon '+(idx===0?'t1':'t2');
+  // Update tabs accent
+  const activeClass=idx===0?'active-t1':'active-t2';
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.classList.contains('active-t1')||t.classList.contains('active-t2')){
+      t.classList.remove('active-t1','active-t2');
+      t.classList.add(activeClass);
+    }
+  });
+  // Update btn-primary color
+  document.getElementById('btn-add-hour').className='btn-primary'+(idx===1?' t2':'');
+  document.getElementById('btn-pdf').className='btn-primary'+(idx===1?' t2':'');
+  document.getElementById('btn-rapport').className='btn-primary'+(idx===1?' t2':'');
+  // Load fiche into fields
+  const f=curFiche();
+  ['nom','site','puissance','tension','marque','serie','maintenance','prochaine','notes'].forEach(k=>{
+    const el=document.getElementById('f-'+k);if(el)el.value=f[k]||'';
+  });
+  updateHeaderTitle();
+  render();
+  renderAlertGlobal();
+  // If on dashboard, refresh
+  const active=document.querySelector('.section.active');
+  if(active&&active.id==='tab-dashboard')renderDashboard();
+}
+
+function updateHeaderTitle(){
+  const f=curFiche();
+  const name=f.nom||(NAMES_DEFAULT[currentT]);
+  document.getElementById('header-title').textContent='Suivi de température — '+name;
+  document.getElementById('label-t1').textContent=state[0].fiche.nom||NAMES_DEFAULT[0];
+  document.getElementById('label-t2').textContent=state[1].fiche.nom||NAMES_DEFAULT[1];
 }
 
 // ---- UTILS ----
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmt(d){const[y,m,day]=d.split('-');return`${day}/${m}`;}
+function fmtFull(d){const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+function badge(v){
+  if(v===null||v===undefined||v==='')return'';
+  const n=parseFloat(v);if(isNaN(n))return'';
+  if(n>=HOT)return`<span class="badge b-hot">${n.toFixed(1)} °C</span>`;
+  if(n>=MID)return`<span class="badge b-warn">${n.toFixed(1)} °C</span>`;
+  if(n>=OK)return`<span class="badge b-mid">${n.toFixed(1)} °C</span>`;
+  return`<span class="badge b-ok">${n.toFixed(1)} °C</span>`;
 }
-function today() { return new Date().toISOString().slice(0,10); }
-function fmt(d)     { const [y,m,day]=d.split('-'); return `${day}/${m}`; }
-function fmtFull(d) { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
-function badge(v) {
-  if (v===null||v===undefined||v==='') return '';
-  const n = parseFloat(v); if (isNaN(n)) return '';
-  if (n>=HOT)  return `<span class="badge b-hot">${n.toFixed(1)} °C</span>`;
-  if (n>=MID)  return `<span class="badge b-warn">${n.toFixed(1)} °C</span>`;
-  if (n>=OK)   return `<span class="badge b-mid">${n.toFixed(1)} °C</span>`;
-  return `<span class="badge b-ok">${n.toFixed(1)} °C</span>`;
+function statusLabel(v){
+  if(v===null||isNaN(v))return'';
+  if(v>=HOT)return'CRITIQUE';if(v>=MID)return'PROCHE SEUIL';
+  if(v>=OK)return'SURVEILLER';return'NORMAL';
 }
-function statusLabel(v) {
-  if (v===null||isNaN(v)) return '';
-  if (v>=HOT) return 'CRITIQUE'; if (v>=MID) return 'PROCHE SEUIL';
-  if (v>=OK)  return 'SURVEILLER'; return 'NORMAL';
+function rowMax(row,hours){
+  const vals=hours.map(h=>parseFloat(row.temps[h])).filter(v=>!isNaN(v));
+  return vals.length?Math.max(...vals):null;
 }
-function rowMax(row) {
-  const vals = hours.map(h => parseFloat(row.temps[h])).filter(v => !isNaN(v));
-  return vals.length ? Math.max(...vals) : null;
-}
+function curRowMax(row){return rowMax(row,curHours());}
 
 // ---- TABS ----
-function showTab(id) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['dashboard','saisie','fiche','export','rapport'];
-    t.classList.toggle('active', ids[i]===id);
+function showTab(id){
+  const activeClass=currentT===0?'active-t1':'active-t2';
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.remove('active-t1','active-t2');
   });
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  // find matching tab by onclick
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.getAttribute('onclick')===`showTab('${id}')`)t.classList.add(activeClass);
+  });
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  if (id==='dashboard') renderDashboard();
-  if (id==='rapport')   genRapport();
+  if(id==='dashboard')renderDashboard();
+  if(id==='rapport')genRapport();
+  if(id==='comparer')renderCompare();
 }
 
 // ---- FICHE ----
-function saveFiche() {
-  ['nom','site','puissance','tension','marque','serie','maintenance','prochaine','notes'].forEach(k => {
-    fiche[k] = document.getElementById('f-'+k).value;
+function saveFiche(){
+  ['nom','site','puissance','tension','marque','serie','maintenance','prochaine','notes'].forEach(k=>{
+    cur().fiche[k]=document.getElementById('f-'+k).value;
   });
-  if (fiche.nom) document.getElementById('header-title').textContent = 'Suivi température — ' + fiche.nom;
+  updateHeaderTitle();
   saveAll();
 }
 
 // ---- SAISIE ----
-function addHour() {
-  const v = document.getElementById('inp-hour').value;
-  if (!v || hours.includes(v)) return;
-  hours.push(v); hours.sort(); render(); saveAll();
+function addHour(){
+  const v=document.getElementById('inp-hour').value;
+  if(!v||curHours().includes(v))return;
+  curHours().push(v);curHours().sort();render();saveAll();
 }
-function removeHour(h) {
-  hours = hours.filter(x => x!==h);
-  rows.forEach(r => delete r.temps[h]);
-  render(); saveAll();
+function removeHour(h){
+  cur().hours=curHours().filter(x=>x!==h);
+  curRows().forEach(r=>delete r.temps[h]);
+  render();saveAll();
 }
-function addDate() {
-  let v = document.getElementById('inp-date').value;
-  if (!v) v = today();
-  if (rows.find(r => r.date===v)) return;
-  rows.push({date:v, temps:{}});
-  rows.sort((a,b) => a.date.localeCompare(b.date));
-  render(); saveAll();
+function addDate(){
+  let v=document.getElementById('inp-date').value;
+  if(!v)v=today();
+  if(curRows().find(r=>r.date===v))return;
+  curRows().push({date:v,temps:{}});
+  curRows().sort((a,b)=>a.date.localeCompare(b.date));
+  render();saveAll();
 }
-function removeDate(i) { rows.splice(i,1); render(); saveAll(); }
-function setTemp(ri, h, val) {
-  rows[ri].temps[h] = val==='' ? '' : val;
-  renderAlertGlobal(); renderFooter(); saveAll();
+function removeDate(i){curRows().splice(i,1);render();saveAll();}
+function setTemp(ri,h,val){
+  curRows()[ri].temps[h]=val===''?'':val;
+  renderAlertGlobal();renderFooter();saveAll();
 }
 
-function renderAlertGlobal() {
-  const el = document.getElementById('alert-global');
-  const crit = rows.filter(r => rowMax(r)!==null && rowMax(r)>=HOT);
-  if (!crit.length) { el.innerHTML=''; return; }
-  const last = crit[crit.length-1];
-  el.innerHTML = `<div class="alert-banner"><i class="ti ti-alert-triangle" style="font-size:18px;flex-shrink:0"></i>${crit.length} jour(s) critique(s) ≥ 85 °C — dernier : ${fmtFull(last.date)} (${rowMax(last).toFixed(1)} °C)</div>`;
+function renderAlertGlobal(){
+  const el=document.getElementById('alert-global');
+  const crit=curRows().filter(r=>curRowMax(r)!==null&&curRowMax(r)>=HOT);
+  if(!crit.length){el.innerHTML='';return;}
+  const last=crit[crit.length-1];
+  el.innerHTML=`<div class="alert-banner"><i class="ti ti-alert-triangle" style="font-size:18px;flex-shrink:0"></i>${crit.length} jour(s) critique(s) ≥ 85 °C — dernier : ${fmtFull(last.date)} (${curRowMax(last).toFixed(1)} °C)</div>`;
 }
-function render() { renderSaisie(); renderAlertGlobal(); }
-function renderSaisie() {
-  const thead=document.getElementById('thead'), tbody=document.getElementById('tbody');
-  if (!hours.length && !rows.length) {
+function render(){renderSaisie();renderAlertGlobal();}
+function renderSaisie(){
+  const thead=document.getElementById('thead'),tbody=document.getElementById('tbody');
+  const hours=curHours(),rows=curRows();
+  if(!hours.length&&!rows.length){
     thead.innerHTML='';
     tbody.innerHTML=`<tr><td class="empty" colspan="2"><i class="ti ti-clock" style="font-size:24px;display:block;margin:0 auto 10px"></i>Commencez par ajouter une heure de relevé</td></tr>`;
-    renderFooter(); return;
+    renderFooter();return;
   }
   thead.innerHTML=`<tr><th>Date</th>${hours.map(h=>`<th>${h} <button class="del-hour" onclick="removeHour('${h}')"><i class="ti ti-x" style="font-size:11px"></i></button></th>`).join('')}<th>Max</th><th>Tendance</th><th></th></tr>`;
-  if (!rows.length) {
+  if(!rows.length){
     tbody.innerHTML=`<tr><td class="empty" colspan="${hours.length+4}"><i class="ti ti-calendar" style="font-size:24px;display:block;margin:0 auto 10px"></i>Ajoutez une date pour commencer</td></tr>`;
-    renderFooter(); return;
+    renderFooter();return;
   }
-  tbody.innerHTML = rows.map((row,ri) => {
-    const cells = hours.map(h => {
-      const v = row.temps[h];
-      return `<td class="tcell"><input type="number" value="${v!==undefined?v:''}" min="0" max="200" step="0.1" oninput="setTemp(${ri},'${h}',this.value)" placeholder="—" /><br>${badge(v)}</td>`;
+  tbody.innerHTML=rows.map((row,ri)=>{
+    const cells=hours.map(h=>{
+      const v=row.temps[h];
+      return`<td class="tcell"><input type="number" value="${v!==undefined?v:''}" min="0" max="200" step="0.1" oninput="setTemp(${ri},'${h}',this.value)" placeholder="—" /><br>${badge(v)}</td>`;
     }).join('');
-    const maxV = rowMax(row);
-    const prev = ri>0 ? rowMax(rows[ri-1]) : null;
-    let trendHTML = '<span class="trend trend-flat">—</span>';
-    if (maxV!==null && prev!==null) {
-      const diff = maxV-prev;
-      if (Math.abs(diff)<0.5) trendHTML=`<span class="trend trend-flat">→</span>`;
-      else if (diff>0) trendHTML=`<span class="trend trend-up">↑ +${diff.toFixed(1)}</span>`;
+    const maxV=curRowMax(row);
+    const prev=ri>0?curRowMax(rows[ri-1]):null;
+    let trendHTML='<span class="trend trend-flat">—</span>';
+    if(maxV!==null&&prev!==null){
+      const diff=maxV-prev;
+      if(Math.abs(diff)<0.5)trendHTML=`<span class="trend trend-flat">→</span>`;
+      else if(diff>0)trendHTML=`<span class="trend trend-up">↑ +${diff.toFixed(1)}</span>`;
       else trendHTML=`<span class="trend trend-down">↓ ${diff.toFixed(1)}</span>`;
     }
-    return `<tr class="${maxV!==null&&maxV>=HOT?'row-critical':''}">
-      <td>${fmtFull(row.date)}</td>${cells}
-      <td class="tcell">${maxV!==null?badge(maxV):'<span style="color:var(--text-muted)">—</span>'}</td>
-      <td class="tcell">${trendHTML}</td>
-      <td><button class="del-btn" onclick="removeDate(${ri})"><i class="ti ti-trash"></i></button></td>
-    </tr>`;
+    return`<tr class="${maxV!==null&&maxV>=HOT?'row-critical':''}"><td>${fmtFull(row.date)}</td>${cells}<td class="tcell">${maxV!==null?badge(maxV):'<span style="color:var(--text-muted)">—</span>'}</td><td class="tcell">${trendHTML}</td><td><button class="del-btn" onclick="removeDate(${ri})"><i class="ti ti-trash"></i></button></td></tr>`;
   }).join('');
   renderFooter();
 }
-function renderFooter() {
-  const tfoot = document.getElementById('tfoot');
-  if (!hours.length||!rows.length) { tfoot.innerHTML=''; return; }
-  const cells = hours.map(h => {
-    const vals = rows.map(r => parseFloat(r.temps[h])).filter(v => !isNaN(v));
-    if (!vals.length) return '<td>—</td>';
-    const mx = Math.max(...vals);
-    const c = mx>=HOT?'var(--red-text)':mx>=MID?'var(--orange-text)':mx>=OK?'var(--blue-text)':'var(--green-text)';
-    return `<td style="color:${c}">${mx.toFixed(1)} °C</td>`;
+function renderFooter(){
+  const tfoot=document.getElementById('tfoot');
+  const hours=curHours(),rows=curRows();
+  if(!hours.length||!rows.length){tfoot.innerHTML='';return;}
+  const cells=hours.map(h=>{
+    const vals=rows.map(r=>parseFloat(r.temps[h])).filter(v=>!isNaN(v));
+    if(!vals.length)return'<td>—</td>';
+    const mx=Math.max(...vals);
+    const c=mx>=HOT?'var(--red-text)':mx>=MID?'var(--orange-text)':mx>=OK?'var(--blue-text)':'var(--green-text)';
+    return`<td style="color:${c}">${mx.toFixed(1)} °C</td>`;
   }).join('');
   tfoot.innerHTML=`<tr><td>Max par heure</td>${cells}<td></td><td></td><td></td></tr>`;
 }
 
 // ---- DASHBOARD ----
-function renderDashboard() {
-  const all = rows.flatMap(r => Object.values(r.temps)).map(parseFloat).filter(v => !isNaN(v)&&v>0);
-  const emptyEl=document.getElementById('dash-empty'), kpiEl=document.getElementById('kpi-row');
-  const dayEl=document.getElementById('day-grid'), chartSec=document.getElementById('dash-chart-section');
-  if (!all.length) {
-    emptyEl.style.display='block'; kpiEl.innerHTML=''; dayEl.innerHTML='';
-    chartSec.style.display='none'; if(chartInst){chartInst.destroy();chartInst=null;} return;
+function renderDashboard(){
+  const rows=curRows(),hours=curHours();
+  const all=rows.flatMap(r=>Object.values(r.temps)).map(parseFloat).filter(v=>!isNaN(v)&&v>0);
+  const emptyEl=document.getElementById('dash-empty'),kpiEl=document.getElementById('kpi-row');
+  const dayEl=document.getElementById('day-grid'),chartSec=document.getElementById('dash-chart-section');
+  if(!all.length){
+    emptyEl.style.display='block';kpiEl.innerHTML='';dayEl.innerHTML='';
+    chartSec.style.display='none';if(chartInst){chartInst.destroy();chartInst=null;}return;
   }
   emptyEl.style.display='none';
-  const max=Math.max(...all), min=Math.min(...all), avg=(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1);
-  const critDays=rows.filter(r=>rowMax(r)!==null&&rowMax(r)>=HOT).length;
-  const warnDays=rows.filter(r=>{const m=rowMax(r);return m!==null&&m>=MID&&m<HOT;}).length;
+  const max=Math.max(...all),min=Math.min(...all),avg=(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1);
+  const critDays=rows.filter(r=>rowMax(r,hours)!==null&&rowMax(r,hours)>=HOT).length;
+  const warnDays=rows.filter(r=>{const m=rowMax(r,hours);return m!==null&&m>=MID&&m<HOT;}).length;
   const maxColor=max>=HOT?'var(--red-text)':max>=MID?'var(--orange-text)':max>=OK?'var(--blue-text)':'var(--green-text)';
   kpiEl.innerHTML=`
     <div class="kpi"><div class="kl">Max global</div><div class="kv" style="color:${maxColor}">${max.toFixed(1)} <span class="ku">°C</span></div></div>
@@ -409,78 +517,126 @@ function renderDashboard() {
     <div class="kpi"><div class="kl">Jours critiques</div><div class="kv" style="color:${critDays?'var(--red-text)':'var(--green-text)'}">${critDays}</div></div>
     <div class="kpi"><div class="kl">À surveiller</div><div class="kv" style="color:${warnDays?'var(--orange-text)':'var(--green-text)'}">${warnDays}</div></div>
     <div class="kpi"><div class="kl">Jours relevés</div><div class="kv">${rows.length}</div></div>`;
-  dayEl.innerHTML = rows.map(r => {
-    const m=rowMax(r); let cls='dc-empty', label='—';
-    if (m!==null) { label=m.toFixed(0)+'°'; cls=m>=HOT?'dc-hot':m>=MID?'dc-warn':m>=OK?'dc-mid':'dc-ok'; }
-    return `<div class="day-cell ${cls}" title="${fmtFull(r.date)} : ${m!==null?m.toFixed(1)+' °C':'—'}">${fmt(r.date)}<br>${label}</div>`;
+  dayEl.innerHTML=rows.map(r=>{
+    const m=rowMax(r,hours);let cls='dc-empty',label='—';
+    if(m!==null){label=m.toFixed(0)+'°';cls=m>=HOT?'dc-hot':m>=MID?'dc-warn':m>=OK?'dc-mid':'dc-ok';}
+    return`<div class="day-cell ${cls}" title="${fmtFull(r.date)} : ${m!==null?m.toFixed(1)+' °C':'—'}">${fmt(r.date)}<br>${label}</div>`;
   }).join('');
-  const withMax=rows.filter(r=>rowMax(r)!==null);
-  if (withMax.length>=2) {
+  const withMax=rows.filter(r=>rowMax(r,hours)!==null);
+  if(withMax.length>=2){
     chartSec.style.display='block';
-    const labels=withMax.map(r=>fmt(r.date)), data=withMax.map(r=>rowMax(r));
-    const ptColors=data.map(v=>v>=HOT?'#C0392B':v>=MID?'#E67E22':v>=OK?'#2980B9':'#27AE60');
-    if (chartInst) { chartInst.destroy(); chartInst=null; }
+    const color=currentT===0?'#2980B9':'#7C3AED';
+    const labels=withMax.map(r=>fmt(r.date)),data=withMax.map(r=>rowMax(r,hours));
+    const ptColors=data.map(v=>v>=HOT?'#C0392B':v>=MID?'#E67E22':v>=OK?color:'#27AE60');
+    if(chartInst){chartInst.destroy();chartInst=null;}
     chartInst=new Chart(document.getElementById('chart'),{
       type:'line',
-      data:{labels,datasets:[{label:'Max °C',data,borderColor:'#2980B9',borderWidth:2,pointBackgroundColor:ptColors,pointBorderColor:ptColors,pointRadius:6,tension:0.3,fill:false}]},
+      data:{labels,datasets:[{label:'Max °C',data,borderColor:color,borderWidth:2,pointBackgroundColor:ptColors,pointBorderColor:ptColors,pointRadius:6,tension:0.3,fill:false}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y.toFixed(1)} °C`}}},scales:{y:{min:40,max:100,grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>v+'°C'}},x:{grid:{display:false}}}}
     });
-  } else chartSec.style.display='none';
+  }else chartSec.style.display='none';
+}
+
+// ---- COMPARER ----
+function renderCompare(){
+  const grid=document.getElementById('compare-grid');
+  const colors=['t1','t2'];
+  const colorsHex=COLORS_HEX;
+  grid.innerHTML=state.map((s,i)=>{
+    const h=s.hours,r=s.rows;
+    const all=r.flatMap(row=>Object.values(row.temps)).map(parseFloat).filter(v=>!isNaN(v)&&v>0);
+    const name=s.fiche.nom||NAMES_DEFAULT[i];
+    if(!all.length)return`<div class="compare-col"><h4 class="${colors[i]}"><span style="width:10px;height:10px;border-radius:99px;background:${colorsHex[i]};display:inline-block;margin-right:4px"></span>${name}</h4><p style="color:var(--text-muted);font-size:13px">Aucune donnée</p></div>`;
+    const max=Math.max(...all),min=Math.min(...all),avg=(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1);
+    const crit=r.filter(row=>rowMax(row,h)!==null&&rowMax(row,h)>=HOT).length;
+    const warn=r.filter(row=>{const m=rowMax(row,h);return m!==null&&m>=MID&&m<HOT;}).length;
+    const maxColor=max>=HOT?'var(--red-text)':max>=MID?'var(--orange-text)':max>=OK?'var(--blue-text)':'var(--green-text)';
+    return`<div class="compare-col">
+      <h4 class="${colors[i]}"><span style="width:10px;height:10px;border-radius:99px;background:${colorsHex[i]};display:inline-block;margin-right:4px"></span>${name}</h4>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--surface);border-radius:var(--radius)"><span style="color:var(--text-muted)">Max global</span><strong style="color:${maxColor}">${max.toFixed(1)} °C</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--surface);border-radius:var(--radius)"><span style="color:var(--text-muted)">Min global</span><strong>${min.toFixed(1)} °C</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--surface);border-radius:var(--radius)"><span style="color:var(--text-muted)">Moyenne</span><strong>${avg} °C</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--surface);border-radius:var(--radius)"><span style="color:var(--text-muted)">Jours relevés</span><strong>${r.length}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:${crit?'var(--red-bg)':'var(--surface)'};border-radius:var(--radius)"><span style="color:var(--text-muted)">Jours critiques</span><strong style="color:${crit?'var(--red-text)':'var(--green-text)'}">${crit}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:${warn?'var(--orange-bg)':'var(--surface)'};border-radius:var(--radius)"><span style="color:var(--text-muted)">Jours à surveiller</span><strong style="color:${warn?'var(--orange-text)':'var(--green-text)'}">${warn}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Graphique comparatif
+  const sec=document.getElementById('compare-chart-section');
+  const datasets=state.map((s,i)=>{
+    const withMax=s.rows.filter(r=>rowMax(r,s.hours)!==null);
+    if(!withMax.length)return null;
+    return{label:s.fiche.nom||NAMES_DEFAULT[i],data:withMax.map(r=>({x:r.date,y:rowMax(r,s.hours)})),borderColor:COLORS_HEX[i],borderWidth:2,pointBackgroundColor:COLORS_HEX[i],pointRadius:5,tension:0.3,fill:false};
+  }).filter(Boolean);
+  if(datasets.length){
+    sec.style.display='block';
+    if(chartCompare){chartCompare.destroy();chartCompare=null;}
+    chartCompare=new Chart(document.getElementById('chart-compare'),{
+      type:'line',data:{datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'top'},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label} : ${ctx.parsed.y.toFixed(1)} °C`}}},
+        scales:{x:{type:'category',grid:{display:false},ticks:{callback:function(val,idx){const d=this.getLabelForValue(val);return fmt(d);}}},y:{min:40,max:100,grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>v+'°C'}}}}
+    });
+  }else sec.style.display='none';
 }
 
 // ---- EXPORTS ----
-function downloadFile(content, filename, mime) {
+function downloadFile(content,filename,mime){
   const blob=new Blob([content],{type:mime});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
   URL.revokeObjectURL(url);
 }
-
-function exportCSV() {
-  if (!rows.length) { showToast('Aucune donnée à exporter.'); return; }
+function exportCSV(){
+  const rows=curRows(),hours=curHours(),fiche=curFiche();
+  if(!rows.length){showToast('Aucune donnée à exporter.');return;}
   const nom=fiche.nom||'transformateur';
   const header=['Date',...hours,'Max (°C)','Statut'].join(';');
   const lignes=rows.map(r=>{
     const vals=hours.map(h=>{const v=r.temps[h];return v!==undefined&&v!==''?parseFloat(v).toFixed(1):'';});
-    const mx=rowMax(r);
-    return [fmtFull(r.date),...vals,mx!==null?mx.toFixed(1):'',statusLabel(mx)].join(';');
+    const mx=rowMax(r,hours);
+    return[fmtFull(r.date),...vals,mx!==null?mx.toFixed(1):'',statusLabel(mx)].join(';');
   });
-  downloadFile('\uFEFF'+[header,...lignes].join('\n'), `releves_${nom.replace(/\s+/g,'_')}_${today()}.csv`, 'text/csv;charset=utf-8');
+  downloadFile('\uFEFF'+[header,...lignes].join('\n'),`releves_${nom.replace(/\s+/g,'_')}_${today()}.csv`,'text/csv;charset=utf-8');
   showToast('CSV téléchargé ✓');
 }
-
-function exportJSON() {
-  if (!rows.length && !fiche.nom) { showToast('Aucune donnée à exporter.'); return; }
+function exportJSON(){
+  const s=cur(),fiche=curFiche();
+  if(!s.rows.length&&!fiche.nom){showToast('Aucune donnée à exporter.');return;}
   const nom=fiche.nom||'transformateur';
-  downloadFile(JSON.stringify({version:1,fiche,hours,rows},null,2), `sauvegarde_${nom.replace(/\s+/g,'_')}_${today()}.json`, 'application/json');
+  downloadFile(JSON.stringify({version:1,fiche:s.fiche,hours:s.hours,rows:s.rows},null,2),`sauvegarde_${nom.replace(/\s+/g,'_')}_${today()}.json`,'application/json');
   showToast('Sauvegarde JSON téléchargée ✓');
 }
-
-function importJSON(evt) {
-  const file=evt.target.files[0]; if(!file) return;
+function importJSON(evt){
+  const file=evt.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    try {
+    try{
       const data=JSON.parse(e.target.result);
-      if (!data.hours||!data.rows) throw new Error('Format invalide');
-      hours=data.hours||[]; rows=data.rows||[]; fiche=data.fiche||fiche;
+      if(!data.hours||!data.rows)throw new Error('Format invalide');
+      state[currentT].hours=data.hours||[];
+      state[currentT].rows=data.rows||[];
+      state[currentT].fiche=data.fiche||state[currentT].fiche;
       ['nom','site','puissance','tension','marque','serie','maintenance','prochaine','notes'].forEach(k=>{
-        const el=document.getElementById('f-'+k); if(el) el.value=fiche[k]||'';
+        const el=document.getElementById('f-'+k);if(el)el.value=state[currentT].fiche[k]||'';
       });
-      if (fiche.nom) document.getElementById('header-title').textContent='Suivi température — '+fiche.nom;
-      render(); renderAlertGlobal(); saveAll();
+      updateHeaderTitle();render();renderAlertGlobal();saveAll();
       showToast('Données importées ✓');
-    } catch(err) { showToast('Erreur : fichier JSON invalide'); }
+    }catch(err){showToast('Erreur : fichier JSON invalide');}
   };
-  reader.readAsText(file); evt.target.value='';
+  reader.readAsText(file);evt.target.value='';
 }
 
 // ---- PDF ----
-function exportPDF() {
-  if (!rows.length) { showToast('Aucune donnée à exporter.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-  const W=210, margin=15, cw=W-margin*2;
+function exportPDF(){
+  const rows=curRows(),hours=curHours(),fiche=curFiche();
+  if(!rows.length){showToast('Aucune donnée à exporter.');return;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,margin=15,cw=W-margin*2;
   let y=margin;
   const now=new Date();
   const dateRapport=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
@@ -488,170 +644,129 @@ function exportPDF() {
   const max=all.length?Math.max(...all):null;
   const min=all.length?Math.min(...all):null;
   const avg=all.length?(all.reduce((a,b)=>a+b,0)/all.length):null;
-  const critRows=rows.filter(r=>rowMax(r)!==null&&rowMax(r)>=HOT);
-  const warnRows=rows.filter(r=>{const m=rowMax(r);return m!==null&&m>=MID&&m<HOT;});
-
-  // Header bande
-  doc.setFillColor(41,128,185);
-  doc.rect(0,0,W,28,'F');
+  const critRows=rows.filter(r=>rowMax(r,hours)!==null&&rowMax(r,hours)>=HOT);
+  const warnRows=rows.filter(r=>{const m=rowMax(r,hours);return m!==null&&m>=MID&&m<HOT;});
+  const headerColor=currentT===0?[41,128,185]:[124,58,237];
+  doc.setFillColor(...headerColor);doc.rect(0,0,W,28,'F');
   doc.setTextColor(255,255,255);
-  doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('RAPPORT DE SUIVI THERMIQUE', margin, 12);
-  doc.setFontSize(11); doc.setFont('helvetica','normal');
-  doc.text(`Transformateur : ${fiche.nom||'(non renseigné)'}  ·  Site : ${fiche.site||'(non renseigné)'}`, margin, 20);
-  doc.text(`Généré le ${dateRapport}`, W-margin, 20, {align:'right'});
+  doc.setFontSize(16);doc.setFont('helvetica','bold');
+  doc.text('RAPPORT DE SUIVI THERMIQUE',margin,12);
+  doc.setFontSize(11);doc.setFont('helvetica','normal');
+  doc.text(`Transformateur : ${fiche.nom||'(non renseigné)'}  ·  Site : ${fiche.site||'(non renseigné)'}`,margin,20);
+  doc.text(`Généré le ${dateRapport}`,W-margin,20,{align:'right'});
   y=36;
-
-  // Fiche
   doc.setTextColor(30,41,59);
-  doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('INFORMATIONS TRANSFORMATEUR', margin, y); y+=6;
-  doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(margin,y,W-margin,y); y+=5;
-  doc.setFontSize(10); doc.setFont('helvetica','normal');
-  const ficheLines=[
-    ['Référence', fiche.nom||'—'],['Site', fiche.site||'—'],
-    ['Puissance', fiche.puissance?fiche.puissance+' kVA':'—'],['Tension', fiche.tension||'—'],
-    ['Marque/Modèle', fiche.marque||'—'],['N° de série', fiche.serie||'—'],
-    ['Dernière maintenance', fiche.maintenance?fmtFull(fiche.maintenance):'—'],
-    ['Prochaine maintenance', fiche.prochaine?fmtFull(fiche.prochaine):'—'],
-  ];
+  doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('INFORMATIONS TRANSFORMATEUR',margin,y);y+=6;
+  doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(margin,y,W-margin,y);y+=5;
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  const ficheLines=[['Référence',fiche.nom||'—'],['Site',fiche.site||'—'],['Puissance',fiche.puissance?fiche.puissance+' kVA':'—'],['Tension',fiche.tension||'—'],['Marque/Modèle',fiche.marque||'—'],['N° de série',fiche.serie||'—'],['Dernière maintenance',fiche.maintenance?fmtFull(fiche.maintenance):'—'],['Prochaine maintenance',fiche.prochaine?fmtFull(fiche.prochaine):'—']];
   ficheLines.forEach(([label,val],i)=>{
     const col=i%2===0?margin:margin+cw/2;
-    if(i%2===0&&i>0) y+=6;
-    doc.setFont('helvetica','bold'); doc.text(label+' :', col, y);
-    doc.setFont('helvetica','normal'); doc.text(val, col+42, y);
-    if(i%2===1) {}
+    if(i%2===0&&i>0)y+=6;
+    doc.setFont('helvetica','bold');doc.text(label+' :',col,y);
+    doc.setFont('helvetica','normal');doc.text(val,col+42,y);
   });
   y+=10;
-
-  // Stats
-  doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('RÉSUMÉ DE LA PÉRIODE', margin, y); y+=6;
-  doc.setDrawColor(226,232,240); doc.line(margin,y,W-margin,y); y+=5;
-  if (all.length) {
-    const periode=`Du ${fmtFull(rows[0].date)} au ${fmtFull(rows[rows.length-1].date)}  (${rows.length} jour(s))`;
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.text(periode, margin, y); y+=7;
-    const statsData=[
-      ['Température max', max.toFixed(1)+' °C'],['Température min', min.toFixed(1)+' °C'],
-      ['Température moyenne', avg.toFixed(1)+' °C'],['Jours critiques (≥85°)', String(critRows.length)],
-      ['Jours à surveiller (≥75°)', String(warnRows.length)],
-    ];
-    statsData.forEach(([l,v])=>{
-      doc.setFont('helvetica','bold'); doc.text(l+' :', margin+2, y);
-      doc.setFont('helvetica','normal'); doc.text(v, margin+70, y); y+=6;
+  doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('RÉSUMÉ DE LA PÉRIODE',margin,y);y+=6;
+  doc.setDrawColor(226,232,240);doc.line(margin,y,W-margin,y);y+=5;
+  if(all.length){
+    doc.setFontSize(10);doc.setFont('helvetica','normal');
+    doc.text(`Du ${fmtFull(rows[0].date)} au ${fmtFull(rows[rows.length-1].date)}  (${rows.length} jour(s))`,margin,y);y+=7;
+    [['Température max',max.toFixed(1)+' °C'],['Température min',min.toFixed(1)+' °C'],['Température moyenne',avg.toFixed(1)+' °C'],['Jours critiques (≥85°)',String(critRows.length)],['Jours à surveiller (≥75°)',String(warnRows.length)]].forEach(([l,v])=>{
+      doc.setFont('helvetica','bold');doc.text(l+' :',margin+2,y);
+      doc.setFont('helvetica','normal');doc.text(v,margin+70,y);y+=6;
     });
   }
   y+=4;
-
-  // Alertes
-  if (critRows.length||warnRows.length) {
-    doc.setFontSize(11); doc.setFont('helvetica','bold');
-    doc.text('ALERTES', margin, y); y+=6;
-    doc.setDrawColor(226,232,240); doc.line(margin,y,W-margin,y); y+=5;
+  if(critRows.length||warnRows.length){
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('ALERTES',margin,y);y+=6;
+    doc.setDrawColor(226,232,240);doc.line(margin,y,W-margin,y);y+=5;
     doc.setFontSize(10);
-    if (critRows.length) {
-      doc.setFillColor(253,236,234); doc.rect(margin,y-4,cw,6*(critRows.length+1)+4,'F');
-      doc.setFont('helvetica','bold'); doc.setTextColor(123,26,26);
-      doc.text(`Jours critiques (≥ 85 °C) : ${critRows.length}`, margin+2, y); y+=6;
+    if(critRows.length){
+      doc.setFillColor(253,236,234);doc.rect(margin,y-4,cw,6*(critRows.length+1)+4,'F');
+      doc.setFont('helvetica','bold');doc.setTextColor(123,26,26);
+      doc.text(`Jours critiques (≥ 85 °C) : ${critRows.length}`,margin+2,y);y+=6;
       doc.setFont('helvetica','normal');
-      critRows.forEach(r=>{ doc.text(`• ${fmtFull(r.date)} : ${rowMax(r).toFixed(1)} °C`, margin+6, y); y+=5; });
-      doc.setTextColor(30,41,59); y+=2;
+      critRows.forEach(r=>{doc.text(`• ${fmtFull(r.date)} : ${rowMax(r,hours).toFixed(1)} °C`,margin+6,y);y+=5;});
+      doc.setTextColor(30,41,59);y+=2;
     }
-    if (warnRows.length) {
-      doc.setFillColor(253,235,208); doc.rect(margin,y-4,cw,6*(warnRows.length+1)+4,'F');
-      doc.setFont('helvetica','bold'); doc.setTextColor(125,67,0);
-      doc.text(`Jours à surveiller (75–84 °C) : ${warnRows.length}`, margin+2, y); y+=6;
+    if(warnRows.length){
+      doc.setFillColor(253,235,208);doc.rect(margin,y-4,cw,6*(warnRows.length+1)+4,'F');
+      doc.setFont('helvetica','bold');doc.setTextColor(125,67,0);
+      doc.text(`Jours à surveiller (75–84 °C) : ${warnRows.length}`,margin+2,y);y+=6;
       doc.setFont('helvetica','normal');
-      warnRows.forEach(r=>{ doc.text(`• ${fmtFull(r.date)} : ${rowMax(r).toFixed(1)} °C`, margin+6, y); y+=5; });
-      doc.setTextColor(30,41,59); y+=2;
+      warnRows.forEach(r=>{doc.text(`• ${fmtFull(r.date)} : ${rowMax(r,hours).toFixed(1)} °C`,margin+6,y);y+=5;});
+      doc.setTextColor(30,41,59);y+=2;
     }
   }
   y+=4;
-
-  // Tableau des relevés
-  if (y>240) { doc.addPage(); y=margin; }
-  doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('TABLEAU DES RELEVÉS', margin, y); y+=6;
-  doc.setDrawColor(226,232,240); doc.line(margin,y,W-margin,y); y+=5;
-  const colW = Math.min(25, cw/(hours.length+3));
-  const dateW = 28;
-  const headerCols=['Date',...hours,'Max','Statut'];
-  doc.setFillColor(248,250,252); doc.rect(margin,y-4,cw,8,'F');
-  doc.setFontSize(8); doc.setFont('helvetica','bold');
-  let x=margin;
-  doc.text('Date',x+1,y); x+=dateW;
-  hours.forEach(h=>{ doc.text(h,x+1,y); x+=colW; });
-  doc.text('Max',x+1,y); x+=colW;
-  doc.text('Statut',x+1,y);
-  y+=7;
+  if(y>240){doc.addPage();y=margin;}
+  doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('TABLEAU DES RELEVÉS',margin,y);y+=6;
+  doc.setDrawColor(226,232,240);doc.line(margin,y,W-margin,y);y+=5;
+  const colW=Math.min(25,cw/(hours.length+3)),dateW=28;
+  doc.setFillColor(248,250,252);doc.rect(margin,y-4,cw,8,'F');
+  doc.setFontSize(8);doc.setFont('helvetica','bold');
+  let x=margin;doc.text('Date',x+1,y);x+=dateW;
+  hours.forEach(h=>{doc.text(h,x+1,y);x+=colW;});
+  doc.text('Max',x+1,y);x+=colW;doc.text('Statut',x+1,y);y+=7;
   doc.setFont('helvetica','normal');
   rows.forEach((row,ri)=>{
-    if (y>275) { doc.addPage(); y=margin+5; }
-    if (ri%2===0) { doc.setFillColor(248,250,252); doc.rect(margin,y-4,cw,7,'F'); }
-    const mx=rowMax(row);
-    if (mx!==null&&mx>=HOT) doc.setTextColor(123,26,26);
-    else if (mx!==null&&mx>=MID) doc.setTextColor(125,67,0);
+    if(y>275){doc.addPage();y=margin+5;}
+    if(ri%2===0){doc.setFillColor(248,250,252);doc.rect(margin,y-4,cw,7,'F');}
+    const mx=rowMax(row,hours);
+    if(mx!==null&&mx>=HOT)doc.setTextColor(123,26,26);
+    else if(mx!==null&&mx>=MID)doc.setTextColor(125,67,0);
     else doc.setTextColor(30,41,59);
-    x=margin;
-    doc.text(fmtFull(row.date),x+1,y); x+=dateW;
-    hours.forEach(h=>{
-      const v=row.temps[h]; doc.text(v!==undefined&&v!==''?parseFloat(v).toFixed(1)+'°':'—',x+1,y); x+=colW;
-    });
-    doc.text(mx!==null?mx.toFixed(1)+' °C':'—',x+1,y); x+=colW;
-    doc.text(statusLabel(mx)||'—',x+1,y);
-    y+=7;
+    x=margin;doc.text(fmtFull(row.date),x+1,y);x+=dateW;
+    hours.forEach(h=>{const v=row.temps[h];doc.text(v!==undefined&&v!==''?parseFloat(v).toFixed(1)+'°':'—',x+1,y);x+=colW;});
+    doc.text(mx!==null?mx.toFixed(1)+' °C':'—',x+1,y);x+=colW;
+    doc.text(statusLabel(mx)||'—',x+1,y);y+=7;
   });
-  doc.setTextColor(30,41,59);
-  y+=6;
-
-  // Conclusion
-  if (y>260) { doc.addPage(); y=margin; }
-  doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('CONCLUSION', margin, y); y+=6;
-  doc.setDrawColor(226,232,240); doc.line(margin,y,W-margin,y); y+=5;
-  doc.setFontSize(10); doc.setFont('helvetica','normal');
-  const concl = critRows.length===0&&warnRows.length===0
-    ? 'Aucune anomalie détectée sur la période. Le transformateur fonctionne dans les normes thermiques.'
-    : critRows.length>0
-      ? `ATTENTION : ${critRows.length} dépassement(s) du seuil critique (≥ 85 °C) détecté(s). Une intervention ou vérification est recommandée.`
-      : `Vigilance requise : ${warnRows.length} jour(s) proche(s) du seuil. Surveiller l'évolution.`;
-  const lines = doc.splitTextToSize(concl, cw);
-  doc.text(lines, margin, y);
-
-  // Footer
+  doc.setTextColor(30,41,59);y+=6;
+  if(y>260){doc.addPage();y=margin;}
+  doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('CONCLUSION',margin,y);y+=6;
+  doc.setDrawColor(226,232,240);doc.line(margin,y,W-margin,y);y+=5;
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  const concl=critRows.length===0&&warnRows.length===0?'Aucune anomalie détectée. Le transformateur fonctionne dans les normes thermiques.':critRows.length>0?`ATTENTION : ${critRows.length} dépassement(s) du seuil critique (≥ 85 °C). Une intervention est recommandée.`:`Vigilance requise : ${warnRows.length} jour(s) proche(s) du seuil.`;
+  doc.text(doc.splitTextToSize(concl,cw),margin,y);
   const pageCount=doc.getNumberOfPages();
   for(let i=1;i<=pageCount;i++){
-    doc.setPage(i);
-    doc.setFontSize(8); doc.setTextColor(148,163,184);
-    doc.text(`Page ${i}/${pageCount}  ·  Suivi thermique transformateur  ·  ${dateRapport}`, W/2, 290, {align:'center'});
+    doc.setPage(i);doc.setFontSize(8);doc.setTextColor(148,163,184);
+    doc.text(`Page ${i}/${pageCount}  ·  ${fiche.nom||'Transformateur'}  ·  ${dateRapport}`,W/2,290,{align:'center'});
   }
-
-  const nom=fiche.nom||'transformateur';
-  doc.save(`rapport_${nom.replace(/\s+/g,'_')}_${today()}.pdf`);
+  doc.save(`rapport_${(fiche.nom||'transfo').replace(/\s+/g,'_')}_${today()}.pdf`);
   showToast('PDF téléchargé ✓');
 }
 
 // ---- RAPPORT TEXTE ----
-function genRapport() {
+function genRapport(){
+  const rows=curRows(),hours=curHours(),fiche=curFiche();
   const el=document.getElementById('rapport-box');
-  if (!rows.length) { el.textContent='Aucune donnée. Saisissez des relevés d\'abord.'; return; }
+  if(!rows.length){el.textContent="Aucune donnée. Saisissez des relevés d'abord.";return;}
   const all=rows.flatMap(r=>Object.values(r.temps)).map(parseFloat).filter(v=>!isNaN(v)&&v>0);
-  if (!all.length) { el.textContent='Aucune température saisie.'; return; }
-  const max=Math.max(...all), min=Math.min(...all), avg=(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1);
-  const critRows=rows.filter(r=>rowMax(r)!==null&&rowMax(r)>=HOT);
-  const warnRows=rows.filter(r=>{const m=rowMax(r);return m!==null&&m>=MID&&m<HOT;});
+  if(!all.length){el.textContent='Aucune température saisie.';return;}
+  const max=Math.max(...all),min=Math.min(...all),avg=(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1);
+  const critRows=rows.filter(r=>rowMax(r,hours)!==null&&rowMax(r,hours)>=HOT);
+  const warnRows=rows.filter(r=>{const m=rowMax(r,hours);return m!==null&&m>=MID&&m<HOT;});
   const now=new Date();
   const dateRapport=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
   let tendance='stable';
-  if (rows.length>=3) {
-    const last3=rows.slice(-3).map(r=>rowMax(r)).filter(v=>v!==null);
-    if (last3.length===3) {
-      if (last3[2]>last3[1]&&last3[1]>last3[0]) tendance='en hausse sur les 3 derniers jours';
-      else if (last3[2]<last3[1]&&last3[1]<last3[0]) tendance='en baisse sur les 3 derniers jours';
+  if(rows.length>=3){
+    const last3=rows.slice(-3).map(r=>rowMax(r,hours)).filter(v=>v!==null);
+    if(last3.length===3){
+      if(last3[2]>last3[1]&&last3[1]>last3[0])tendance='en hausse sur les 3 derniers jours';
+      else if(last3[2]<last3[1]&&last3[1]<last3[0])tendance='en baisse sur les 3 derniers jours';
     }
   }
-  const heuresCritiques=hours.filter(h=>rows.some(r=>parseFloat(r.temps[h])>=HOT));
+  // Heures à risque = toutes les heures ayant atteint au moins 75°C (seuil orange)
+  const heuresCritiques=hours.map(h=>{
+    const vals=rows.map(r=>parseFloat(r.temps[h])).filter(v=>!isNaN(v));
+    const mx=vals.length?Math.max(...vals):null;
+    return{h,mx};
+  }).filter(({mx})=>mx!==null&&mx>=MID)
+    .sort((a,b)=>b.mx-a.mx)
+    .map(({h,mx})=>`${h} (max : ${mx.toFixed(1)} °C${mx>=HOT?' ⚠ CRITIQUE':''})`);
   el.textContent=`RAPPORT DE SUIVI THERMIQUE — TRANSFORMATEUR
 ${'─'.repeat(50)}
 Généré le      : ${dateRapport}
@@ -672,34 +787,29 @@ ${'─'.repeat(50)}
 ALERTES
 ${'─'.repeat(50)}
 Jours critiques (≥ 85 °C) : ${critRows.length}
-${critRows.map(r=>`  • ${fmtFull(r.date)} : ${rowMax(r).toFixed(1)} °C`).join('\n')||'  Aucun'}
+${critRows.map(r=>`  • ${fmtFull(r.date)} : ${rowMax(r,hours).toFixed(1)} °C`).join('\n')||'  Aucun'}
 
 Jours à surveiller (75–84 °C) : ${warnRows.length}
-${warnRows.map(r=>`  • ${fmtFull(r.date)} : ${rowMax(r).toFixed(1)} °C`).join('\n')||'  Aucun'}
+${warnRows.map(r=>`  • ${fmtFull(r.date)} : ${rowMax(r,hours).toFixed(1)} °C`).join('\n')||'  Aucun'}
 
-Heures à risque : ${heuresCritiques.length?heuresCritiques.join(', '):'Aucune'}
+Heures à risque (≥ 75 °C) :
+${heuresCritiques.length?heuresCritiques.map(h=>`  • ${h}`).join('\n'):'  Aucune heure n\'a dépassé 75 °C sur la période'}
 
 ${'─'.repeat(50)}
 CONCLUSION
 ${'─'.repeat(50)}
-${critRows.length===0&&warnRows.length===0
-  ?'Aucune anomalie détectée. Le transformateur fonctionne dans les normes thermiques.'
-  :critRows.length>0
-    ?`ATTENTION : ${critRows.length} dépassement(s) du seuil critique (≥ 85 °C). Une intervention est recommandée.`
-    :`Vigilance requise : ${warnRows.length} jour(s) proche(s) du seuil.`
-}
+${critRows.length===0&&warnRows.length===0?'Aucune anomalie détectée. Le transformateur fonctionne dans les normes thermiques.':critRows.length>0?`ATTENTION : ${critRows.length} dépassement(s) du seuil critique (≥ 85 °C). Une intervention est recommandée.`:`Vigilance requise : ${warnRows.length} jour(s) proche(s) du seuil.`}
 ${'─'.repeat(50)}`;
 }
-function copyRapport() {
-  const txt=document.getElementById('rapport-box').textContent;
-  navigator.clipboard.writeText(txt).catch(()=>{});
+function copyRapport(){
+  navigator.clipboard.writeText(document.getElementById('rapport-box').textContent).catch(()=>{});
   showToast('Rapport copié ✓');
 }
 
 // ---- INIT ----
-loadAll();
-render();
-renderAlertGlobal();
+loadTransfo(0);loadTransfo(1);
+updateHeaderTitle();
+render();renderAlertGlobal();
 </script>
 </body>
 </html>
